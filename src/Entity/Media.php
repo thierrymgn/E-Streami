@@ -48,7 +48,6 @@ class Media
     private ?array $nominate = null;
 
     #[ORM\ManyToOne(inversedBy: 'media')]
-    #[ORM\JoinColumn(nullable: false)]
     private ?PlaylistMedia $playlistMedia = null;
 
     #[ORM\ManyToOne(inversedBy: 'media')]
@@ -266,13 +265,16 @@ class Media
      */
     public function getLanguages(): Collection
     {
+        if ($this->languages === null) {
+            $this->languages = new ArrayCollection();
+        }
         return $this->languages;
     }
 
     public function addLanguage(Language $language): static
     {
-        if (!$this->languages->contains($language)) {
-            $this->languages->add($language);
+        if (!$this->getLanguages()->contains($language)) {
+            $this->getLanguages()->add($language);
             $language->addMedium($this);
         }
 
@@ -281,7 +283,7 @@ class Media
 
     public function removeLanguage(Language $language): static
     {
-        if ($this->languages->removeElement($language)) {
+        if ($this->getLanguages()->removeElement($language)) {
             $language->removeMedium($this);
         }
 

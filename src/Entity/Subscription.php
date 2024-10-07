@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SubscriptionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SubscriptionRepository::class)]
@@ -20,16 +22,24 @@ class Subscription
     private ?int $price = null;
 
     #[ORM\Column]
-    private ?int $duration = null;
+    private ?int $durationInMonths = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\OneToOne(mappedBy: 'subscriptions', cascade: ['persist', 'remove'])]
-    private ?User $subscriber = null;
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\OneToMany(mappedBy: 'subscription', targetEntity: User::class)]
+    private Collection $subscribers;
 
     #[ORM\OneToOne(inversedBy: 'subscription', cascade: ['persist', 'remove'])]
     private ?SubscriptionHistory $subscriptionHistory = null;
+
+    public function __construct()
+    {
+        $this->subscribers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -60,48 +70,56 @@ class Subscription
         return $this;
     }
 
-    public function getDuration(): ?int
+    public function getDurationInMonths(): ?int
     {
-        return $this->duration;
+        return $this->durationInMonths;
     }
 
-    public function setDuration(int $duration): static
+    public function setDurationInMonths(int $durationInMonths): static
     {
-        $this->duration = $duration;
+        $this->durationInMonths = $durationInMonths;
 
         return $this;
     }
 
-    public function getcreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setcreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getSubscriber(): ?User
+    /**
+     * @return Collection<int, User>
+     */
+    public function getSubscribers(): Collection
     {
-        return $this->subscriber;
+        return $this->subscribers;
     }
 
-    public function setSubscriber(?User $subscriber): static
+    public function addSubscriber(User $subscriber): static
     {
-        // unset the owning side of the relation if necessary
-        if ($subscriber === null && $this->subscriber !== null) {
-            $this->subscriber->setSubscription(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($subscriber !== null && $subscriber->getSubscription() !== $this) {
+        if (!$this->subscribers->contains($subscriber)) {
+            $this->subscribers->add($subscriber);
             $subscriber->setSubscription($this);
         }
 
-        $this->subscriber = $subscriber;
+        return $this;
+    }
+
+    public function removeSubscriber(User $subscriber): static
+    {
+        if ($this->subscribers->removeElement($subscriber)) {
+            // set the owning side to null (unless already changed)
+            if ($subscriber->getSubscription() === $this) {
+                $subscriber->setSubscription(null);
+            }
+        }
 
         return $this;
     }

@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
+#[ORM\Table(name: '`user`')]
 class User
 {
     #[ORM\Id]
@@ -46,20 +47,24 @@ class User
     #[ORM\OneToMany(targetEntity: PlaylistSubscription::class, mappedBy: 'subscriber', orphanRemoval: true)]
     private Collection $playlistSubscriptions;
 
-    #[ORM\OneToOne(inversedBy: 'subscriber', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'subscribers')]
     private ?Subscription $subscription = null;
 
     #[ORM\OneToOne(inversedBy: 'subscriber', cascade: ['persist', 'remove'])]
     private ?SubscriptionHistory $subscriptionHistory = null;
 
-    #[ORM\OneToOne(mappedBy: 'customer', cascade: ['persist', 'remove'])]
-    private ?WatchHistory $watchHistory = null;
+    /**
+     * @var Collection<int, WatchHistory>
+     */
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: WatchHistory::class, cascade: ['persist', 'remove'])]
+    private Collection $watchHistories;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->playlists = new ArrayCollection();
         $this->playlistSubscriptions = new ArrayCollection();
+        $this->watchHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -229,24 +234,32 @@ class User
         return $this;
     }
 
-    public function getWatchHistory(): ?WatchHistory
+    /**
+     * @return Collection<int, WatchHistory>
+     */
+    public function getWatchHistories(): Collection
     {
-        return $this->watchHistory;
+        return $this->watchHistories;
     }
 
-    public function setWatchHistory(?WatchHistory $watchHistory): static
+    public function addWatchHistory(WatchHistory $watchHistory): static
     {
-        // unset the owning side of the relation if necessary
-        if ($watchHistory === null && $this->watchHistory !== null) {
-            $this->watchHistory->setCustomer(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($watchHistory !== null && $watchHistory->getCustomer() !== $this) {
+        if (!$this->watchHistories->contains($watchHistory)) {
+            $this->watchHistories->add($watchHistory);
             $watchHistory->setCustomer($this);
         }
 
-        $this->watchHistory = $watchHistory;
+        return $this;
+    }
+
+    public function removeWatchHistory(WatchHistory $watchHistory): static
+    {
+        if ($this->watchHistories->removeElement($watchHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($watchHistory->getCustomer() === $this) {
+                $watchHistory->setCustomer(null);
+            }
+        }
 
         return $this;
     }

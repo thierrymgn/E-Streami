@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Enum\CommentsStatusEnum;
 use App\Repository\CommentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
@@ -24,11 +26,24 @@ class Comment
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
-    #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
     private ?Media $media = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'parentComment')]
+    private ?self $childComment = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'childComment')]
+    private Collection $parentComment;
+
+    public function __construct()
+    {
+        $this->parentComment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -91,6 +106,48 @@ class Comment
     public function setMedia(?Media $media): static
     {
         $this->media = $media;
+
+        return $this;
+    }
+
+    public function getChildComment(): ?self
+    {
+        return $this->childComment;
+    }
+
+    public function setChildComment(?self $childComment): static
+    {
+        $this->childComment = $childComment;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getParentComment(): Collection
+    {
+        return $this->parentComment;
+    }
+
+    public function addParentComment(self $parentComment): static
+    {
+        if (!$this->parentComment->contains($parentComment)) {
+            $this->parentComment->add($parentComment);
+            $parentComment->setChildComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParentComment(self $parentComment): static
+    {
+        if ($this->parentComment->removeElement($parentComment)) {
+            // set the owning side to null (unless already changed)
+            if ($parentComment->getChildComment() === $this) {
+                $parentComment->setChildComment(null);
+            }
+        }
 
         return $this;
     }

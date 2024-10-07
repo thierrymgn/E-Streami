@@ -28,7 +28,8 @@ class WatchHistory
     #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'watchHistory')]
     private Collection $media;
 
-    #[ORM\OneToOne(inversedBy: 'watchHistory', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'watchHistories')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $customer = null;
 
     public function __construct()
@@ -72,7 +73,7 @@ class WatchHistory
     {
         return $this->media;
     }
-
+    
     public function addMedium(Media $medium): static
     {
         if (!$this->media->contains($medium)) {

@@ -62,15 +62,15 @@ class SubscriptionHistory
 
     public function setSubscription(?Subscription $subscription): static
     {
-        // unset the owning side of the relation if necessary
-        if ($subscription === null && $this->subscription !== null) {
-            $this->subscription->setSubscriptionHistory(null);
-        }
+        // // unset the owning side of the relation if necessary
+        // if ($subscription === null && $this->subscription !== null) {
+        //     $this->subscription->setSubscriptionHistory(null);
+        // }
 
-        // set the owning side of the relation if necessary
-        if ($subscription !== null && $subscription->getSubscriptionHistory() !== $this) {
-            $subscription->setSubscriptionHistory($this);
-        }
+        // // set the owning side of the relation if necessary
+        // if ($subscription !== null && $subscription->getSubscriptionHistory() !== $this) {
+        //     $subscription->setSubscriptionHistory($this);
+        // }
 
         $this->subscription = $subscription;
 
