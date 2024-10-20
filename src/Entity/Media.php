@@ -233,6 +233,11 @@ class Media
         return $this;
     }
 
+    public function getMediaTypeString(): string
+    {
+        return 'media';
+    }
+
     /**
      * @return Collection<int, Category>
      */

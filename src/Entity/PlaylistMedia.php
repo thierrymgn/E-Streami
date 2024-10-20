@@ -69,6 +69,11 @@ class PlaylistMedia
     {
         return $this->media;
     }
+    
+    public function getMediaTypes(): array
+    {
+        return $this->media->map(fn (Media $media) => $media->getMediaTypeString())->toArray();
+    }
 
     public function addMedium(Media $medium): static
     {

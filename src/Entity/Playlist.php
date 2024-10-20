@@ -158,4 +158,13 @@ class Playlist
 
         return $this;
     }
+
+    public function getMediasTypeCount(): array
+    {
+        $mediaTypes = $this->playlistMedias->map(fn (PlaylistMedia $playlistMedia) => $playlistMedia->getMediaTypes())->toArray();
+        $mediaTypes = array_merge(...$mediaTypes);
+        $mediaTypesCount = array_count_values($mediaTypes);
+
+        return $mediaTypesCount;
+    }
 }
