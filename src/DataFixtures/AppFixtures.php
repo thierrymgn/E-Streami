@@ -240,7 +240,7 @@ class AppFixtures extends Fixture
 
         $medias = $this->getToPersistMediaData();
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < $this->faker->numberBetween(0, 30); $i++) {
             $media = $medias[$this->faker->numberBetween(0, count($medias) - 1)];
             $playlistMedia = new PlaylistMedia();
             $playlistMedia->setAddedAt(\DateTimeImmutable::createFromMutable($this->faker->dateTimeBetween('-1 year', 'now')));
@@ -315,7 +315,7 @@ class AppFixtures extends Fixture
         $media->setShortDescription($this->faker->sentence(10));
         $media->setLongDescription($this->faker->sentence(40));
         $media->setReleaseDate($this->faker->dateTimeBetween('-40 year', 'now'));
-        $media->setCoverImage($this->faker->imageUrl());
+        $media->setCoverImage("https://picsum.photos/1920/1080?random={$this->faker->numberBetween(1, 100)}");
         $media->setMediaType($this->faker->randomElement(MediaTypeEnum::cases()));
         $media->setStaff([
             'Director' => $this->faker->name(),
