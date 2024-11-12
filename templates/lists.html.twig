@@ -69,16 +69,38 @@
 
 						<div class="relative w-full flex text-gray-700 font-medium">
 							<select id="playlistSelect" class="appearance-none w-full bg-white border border-gray-200 px-7 py-3 rounded-md shadow transition">
-                                {% for playlist in playlists %}
-                                    <option value="{{playlist.id}}"># {{loop.index}} - {{playlist.name}} ({{playlist.mediasTypeCount['serie']|default(0) }} films {{playlist.mediasTypeCount['movie']|default(0)}} séries)</option>
-                                {% endfor %}
-                                {% for playlistSub in playlistSubscriptions %}
-                                    <option value="{{playlistSub.id}}"># {{loop.index}} - {{playlistSub.playlist.name}} ({{playlistSub.playlist.mediasTypeCount['serie']|default(0) }} films {{playlistSub.playlist.mediasTypeCount['movie']|default(0)}} séries) - {{playlistSub.playlist.creator.username}}</option>
-                                {% endfor %}
+								{% if currentPlaylist is not defined or currentPlaylist is null %}
+									<option value="" disabled selected>Choisissez une playlist</option>
+								{% endif %}
+								{% for playlist in playlists %}
+									<option value="{{ playlist.id }}" {% if currentPlaylist is defined and currentPlaylist is not null and currentPlaylist.id == playlist.id %} selected {% endif %}>#
+										{{ loop.index }}
+										-
+										{{ playlist.name }}
+										({{ playlist.mediasTypeCount['serie']|default(0) }}
+										films,
+										{{ playlist.mediasTypeCount['movie']|default(0) }}
+										séries)
+									</option>
+								{% endfor %}
+								{% for playlistSub in playlistSubscriptions %}
+									<option value="{{ playlistSub.id }}" {% if currentPlaylist is defined and currentPlaylist is not null and currentPlaylist.id == playlistSub.playlist.id %} selected {% endif %}>#
+										{{ loop.index }}
+										-
+										{{ playlistSub.playlist.name }}
+										({{ playlistSub.playlist.mediasTypeCount['serie']|default(0) }}
+										films,
+										{{ playlistSub.playlist.mediasTypeCount['movie']|default(0) }}
+										séries) -
+										{{ playlistSub.playlist.creator.username }}
+									</option>
+								{% endfor %}
 							</select>
 							<div class="pointer-events-none absolute right-2 inset-y-0 flex items-center px-2">
 								<svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24">
-									<title>chevron-down-circle</title><path d="M22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12M6,10L12,16L18,10L16.6,8.6L12,13.2L7.4,8.6L6,10Z"/></svg>
+									<title>chevron-down-circle</title>
+									<path d="M22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12M6,10L12,16L18,10L16.6,8.6L12,13.2L7.4,8.6L6,10Z"/>
+								</svg>
 							</div>
 						</div>
 					</div>
@@ -86,11 +108,19 @@
 
 				<section class="mt-9">
 					<ul class="grid grid-cols-2 gap-y-5 sm:grid-cols-3 gap-x-5">
-						{% for playlistMedia in currentPlaylist.playlistMedias %}
-							{% set media = playlistMedia.media %}
-							{% dump(media.title) %}
-							{% include 'components/cards/movieCard.html.twig' with { 'media': media, 'index': loop.index } %}
-						{% endfor %}
+						{% if currentPlaylist is defined and currentPlaylist is not null %}
+							{% for playlistMedia in currentPlaylist.playlistMedias %}
+								{% set mediaCollection = playlistMedia.media %}
+								{% if mediaCollection is defined and mediaCollection is not null %}
+									{% for media in mediaCollection %}
+										{% if media.title is defined %}
+											{% dump(media.title) %}
+											{% include 'components/cards/movieCard.html.twig' with { 'media': media, 'index': loop.index } %}
+										{% endif %}
+									{% endfor %}
+								{% endif %}
+							{% endfor %}
+						{% endif %}
 					</ul>
 					<button class="flex flex-col items-center mt-9 w-full">
 						<div class="relative flex w-full bg-red-600 flex-row p-3 items-center justify-center rounded-lg overflow-hidden border cursor-pointer transition hover:bg-red-700 text-white">
@@ -110,9 +140,9 @@
 	</body>
 
 	<script>
-		document.getElementById('playlistSelect').addEventListener('change', function() { 
-			window.location.href = "{{ path('show_my_list') }}?playlistId=" + this.value;
-		});
+		document.getElementById('playlistSelect').addEventListener('change', function () {
+window.location.href = "{{ path('show_my_list') }}?playlistId=" + this.value;
+});
 	</script>
 
 </html>

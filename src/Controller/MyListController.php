@@ -21,8 +21,15 @@ class MyListController extends AbstractController
         ): Response
     {
         $playlistId = $request->query->get('playlistId');
+        $currentPlaylist = null;
 
-        $currentPlaylist = $playlistRepository->find($playlistId);
+        if (isset($playlistId) && !empty($playlistId)) {
+            $currentPlaylist = $playlistRepository->find($playlistId);
+            
+            if ($currentPlaylist === null) {
+                throw new \Exception("Playlist with id $playlistId not found.");
+            }
+        }
 
         return $this->render('lists.html.twig', [
             'playlists' => $playlistRepository->findAll(),
