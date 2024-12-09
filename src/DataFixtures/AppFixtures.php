@@ -64,6 +64,7 @@ class AppFixtures extends Fixture
             $subscription = new Subscription();
             $subscription->setName('Free');
             $subscription->setPrice(0);
+            $subscription->setDescription($this->faker->sentence(10));
             $subscription->setDurationInMonths(1);
             $subscription->setCreatedAt(\DateTimeImmutable::createFromMutable($this->faker->dateTimeBetween('-5 year', 'now')));
             $this->subscriptions[] = $subscription;
@@ -71,6 +72,7 @@ class AppFixtures extends Fixture
             $subscription = new Subscription();
             $subscription->setName('Premium');
             $subscription->setPrice(9.99);
+            $subscription->setDescription($this->faker->sentence(15));
             $subscription->setDurationInMonths(1);
             $subscription->setCreatedAt(\DateTimeImmutable::createFromMutable($this->faker->dateTimeBetween('-5 year', 'now')));
             $this->subscriptions[] = $subscription;
@@ -78,6 +80,7 @@ class AppFixtures extends Fixture
             $subscription = new Subscription();
             $subscription->setName('Premium Plus');
             $subscription->setPrice(14.99);
+            $subscription->setDescription($this->faker->sentence(20));
             $subscription->setDurationInMonths(1);
             $subscription->setCreatedAt(\DateTimeImmutable::createFromMutable($this->faker->dateTimeBetween('-5 year', 'now')));
             $this->subscriptions[] = $subscription;

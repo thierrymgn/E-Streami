@@ -16,10 +16,20 @@ class MyListController extends AbstractController
     #[Route('/lists', name: 'show_my_list')]
     public function discover_category(
         Request $request,
-        PlaylistRepository $playlistRepository, 
+        PlaylistRepository $playlistRepository,
         PlaylistSubscriptionRepository $playlistSubscriptionRepository
-        ): Response
+    ): Response
     {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->redirectToRoute('home');
+        }
+
+        dump($user);
+
+        $playlists = $user->getPlaylists();
+
         $playlistId = $request->query->get('playlistId');
         $currentPlaylist = null;
 
@@ -32,7 +42,7 @@ class MyListController extends AbstractController
         }
 
         return $this->render('lists.html.twig', [
-            'playlists' => $playlistRepository->findAll(),
+            'playlists' => $playlists,
             'playlistSubscriptions' => $playlistSubscriptionRepository->findAll(),
             'currentPlaylist' => $currentPlaylist
         ]);
