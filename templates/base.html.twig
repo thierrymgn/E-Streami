@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Streemi{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body class="font-montserrat text-sm bg-white">
+<div class="flex min-h-screen 2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200">
+    {% include '/components/sidebar/leftSidebar.html.twig' %}
+    {% block content %}{% endblock %}
+    {% include '/components/sidebar/rightSidebar.html.twig' %}
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -22,14 +22,24 @@ use App\Enum\MediaTypeEnum;
 use App\Enum\UserStatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     private \Faker\Generator $faker;
     private $dataToPersist = [];
 
+    private $passwordHasher;
+
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
+    {
+        $this->passwordHasher = $passwordHasher;
+    }
+
     public function load(ObjectManager $manager): void
     {
+        ini_set('memory_limit', '256M');
+
         $this->faker = \Faker\Factory::create();
 
         for ($i = 0; $i < 10; $i++) {
@@ -84,7 +94,9 @@ class AppFixtures extends Fixture
     {
         $user = new User();
         $user->setEmail($this->faker->email());
-        $user->setPassword($this->faker->password());
+        $hashedPassword = $this->passwordHasher->hashPassword($user, 'password');
+        $user->setPassword($hashedPassword);
+        $user->setRoles(['ROLE_USER']);
         $user->setStatus($this->faker->randomElement(UserStatusEnum::cases()));
         $user->setUsername($this->faker->userName());
         $subscriptions = $this->getSubscriptions();

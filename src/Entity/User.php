@@ -7,10 +7,11 @@ use App\Repository\UsersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements UserInterface, \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -58,6 +59,9 @@ class User
      */
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: WatchHistory::class, cascade: ['persist', 'remove'])]
     private Collection $watchHistories;
+
+    #[ORM\Column]
+    private array $roles = [];
 
     public function __construct()
     {
@@ -263,4 +267,26 @@ class User
 
         return $this;
     }
+
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
 }
